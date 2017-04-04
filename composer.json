@@ -1,0 +1,19 @@
+{
+  "name":              "php-devil/php-devil-orm",
+  "description":       "ORM for PHP Devil projects",
+  "minimum-stability": "dev",
+  "license":           "MIT",
+  "authors": [
+    {
+      "name":          "Alexey Volkov",
+      "email":         "alex.phpdevil@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"PhpDevil\\ORM\\": "src"}
+  },
+  "require": {
+    "php-devil/php-devil-configurator":  "v0.1.0",
+    "php-devil/pdo-query-builder":       "v0.1.0"
+  }
+}

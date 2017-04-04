@@ -6,12 +6,13 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
 {
     /**
      * Поиск всех строк связанной таблицы
+     * @param null|array $columns
      * @return SelectQueryBuilder
      */
-    public static function findAll()
+    public static function findAll($columns = null)
     {
         $query = new SelectQueryBuilder;
-        $query->from(static::tableName());
+        $query->select($columns)->from(static::tableName());
         return $query;
     }
 

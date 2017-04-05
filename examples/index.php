@@ -6,11 +6,13 @@ require __DIR__ . '/models/classes/PagesStructure.php';
 \PhpDevil\Common\Configurator\Loader::getInstance()->enableFileCaching(__DIR__ . '/cache');
 
 $select = new \PhpDevil\ORM\providers\RecordSet([
-    'model'   => PagesStructure::class,
-    'query'   => PagesStructure::findAll(['id', 'name', 'parent_url' => 'parent.url', 'parent_name' => 'parent.name']),
+    // для создания рекордсета указываются поля модели или
+    // алиасы данных, которые могут быть получены по связям этой модели
+    // Для создания произвольного сета используем RecordSetArray
+    'prototype' => PagesStructure::class,
+    'query'     => PagesStructure::findAll(['id', 'url', 'name', 'parent.url', 'parent.name']),
 ]);
 
-echo '<pre>';
-print_r($select);
+$rows = $select->all();
 
 

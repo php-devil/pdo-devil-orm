@@ -19,8 +19,8 @@ class Connector
      */
     public function createConnection($name, $config)
     {
-        if (!isset($this->connectionsEnabled[$name])) {
-            $this->connectionsEnabled[$name] = $config;
+        if (!isset($this->connectionsAvailable[$name])) {
+            $this->connectionsAvailable[$name] = $config;
         } else {
             throw new \Exception('Connection ' . $name . ' is established and can not be changed');
         }

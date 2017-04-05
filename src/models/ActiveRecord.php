@@ -1,9 +1,21 @@
 <?php
 namespace PhpDevil\ORM\models;
+use PhpDevil\ORM\Connector;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
+use PhpDevil\ORM\behavior\NestedSets;
 
 abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterface
 {
+    /**
+     * Определение поведения модели в целом
+     * (дерево NS, списки с сортировкой по полю, с русной сортировкой по полю, маппер и т.п.)
+     * @return mixed
+     */
+    public static function mainBehavior()
+    {
+        return NestedSets::class;
+    }
+
     /**
      * Поиск всех строк связанной таблицы
      * @param null|array $columns
@@ -12,7 +24,7 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     public static function findAll($columns = null)
     {
         $query = new SelectQueryBuilder;
-        $query->select($columns)->from(static::tableName());
+        $query->select($columns)->from(static::tableName())->orderBy((static::mainBehavior())::defaultOrderBy(static::class));
         return $query;
     }
 
@@ -21,4 +33,11 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
      * @return string|array
      */
     public static function tableName() { return (static::getConfig())['table']['name']; }
+    public static function typeName()  { return (static::mainBehavior())::typeName();   }
+    public static function typeClass() { return (static::mainBehavior())::typeClass();  }
+
+    public static function db()
+    {
+        return Connector::getInstance()->getConnection((static::getConfig())['table']['connection']);
+    }
 }

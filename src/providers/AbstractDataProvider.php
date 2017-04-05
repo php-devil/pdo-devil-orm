@@ -19,7 +19,7 @@ abstract class AbstractDataProvider
      * Имя класса модели для формирования строк результатов запроса
      * @param $className
      */
-    protected function setModel($className)
+    protected function setPrototype($className)
     {
         if (is_object($className)) $this->modelClass = get_class($className);
         else $this->modelClass = $className;

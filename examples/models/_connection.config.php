@@ -1,5 +1,5 @@
 <?php
-\PhpDevil\ORM\Connector::getInstance()->createConnection('demo', [
+\PhpDevil\ORM\Connector::getInstance()->createConnection('main', [
     'dsn'      => 'mysql:host=localhost;dbname=test_demo',
     'user'     => 'root',
     'password' => '',

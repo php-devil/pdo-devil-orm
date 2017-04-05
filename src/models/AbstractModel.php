@@ -26,6 +26,13 @@ abstract class AbstractModel
 
     protected $_keys  = [];
 
+    protected $_provider = null;
+
+    public function setProvider()
+    {
+
+    }
+
     public function setAttributes($arr)
     {
         foreach ($arr as $k=>$v) {

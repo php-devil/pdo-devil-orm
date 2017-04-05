@@ -3,7 +3,7 @@ namespace PhpDevil\ORM\providers;
 
 use PhpDevil\ORM\QueryBuilder\QueryBuilderInterface;
 
-abstract class AbstractDataProvider
+abstract class AbstractDataProvider implements DataProviderInterface
 {
     protected $modelClass;
 

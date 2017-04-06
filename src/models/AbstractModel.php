@@ -20,6 +20,15 @@ abstract class AbstractModel
     public static function attributes() { return (static::getConfig())['attributes'] ?: []; }
     public static function relations()  { return (static::getConfig())['relations']  ?: []; }
 
+    public static function labelOf($name)
+    {
+        if (isset((static::getConfig())['labels'][$name])) {
+            return (static::getConfig())['labels'][$name];
+        } else {
+            return ucwords(str_replace('_', ' ', $name));
+        }
+    }
+
     protected $_attributes = [];
 
     protected $_roles = [];

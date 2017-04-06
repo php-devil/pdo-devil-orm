@@ -186,4 +186,9 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
         $this->query->select($realQueryColumns);
         $this->_preloaded = empty($realQueryColumns) ? array_keys(($this->modelClass)::attributes()) : $realQueryColumns;
     }
+
+    public function getQuery()
+    {
+        return $this->query;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace PhpDevil\ORM\models;
 use PhpDevil\ORM\Connector;
+use PhpDevil\ORM\queries\QueryBuildable;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
 use PhpDevil\ORM\behavior\NestedSets;
 
@@ -14,6 +15,16 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     public static function mainBehavior()
     {
         return NestedSets::class;
+    }
+
+    /**
+     * Построитель запроса, предварительно сконфигурированный для данной модели
+     * После указания параметров запроса вызывается метод execute();
+     * @return QueryBuildable
+     */
+    public static function query()
+    {
+        return new QueryBuildable(static::db(), static::tableName());
     }
 
     /**

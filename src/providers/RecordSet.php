@@ -152,6 +152,15 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
     }
 
     /**
+     * Имя класса-прототипа моделей данных
+     * @return mixed
+     */
+    public function getPrototype()
+    {
+        return $this->modelClass;
+    }
+
+    /**
      * При установке запроса провайдеру списка записей модели
      * из результатов запроса убираем все, что к модели не относится. Для полей, подтягиваемых из других
      * иоделей создаем классы связей, которые будут загружены по мере попыток доступа к даннымю

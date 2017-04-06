@@ -1,7 +1,7 @@
 <?php
 namespace PhpDevil\ORM\relations;
 
-class AbstractRelation implements RelationObserver
+abstract class AbstractRelation implements RelationObserver
 {
     /**
      * Модель, запрос которой инициировал подгрузку связей
@@ -43,10 +43,31 @@ class AbstractRelation implements RelationObserver
 
     protected $loadedValues = [];
 
-    public function addNotification($value)
+    final public function addNotification($value)
     {
         if (!in_array($value, $this->loadedValues)) {
             $this->loadedValues[] = $value;
+        }
+    }
+
+    abstract protected function preloadShort();
+
+    abstract protected function preloadLong();
+
+    abstract protected function getFromProvider($model);
+
+    final public function getAttributeFor($model, $alias = null)
+    {
+        if (!empty($this->queriedColumns) && (null === $alias || in_array($alias, $this->queriedColumns))) {
+            $this->preloadShort();
+        } else {
+            $this->preloadLong();
+        }
+        $related = $this->getFromProvider($model);
+        if (null !== $alias) {
+            return $related->getAttribute($alias);
+        } else {
+            return $related;
         }
     }
 

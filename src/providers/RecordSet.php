@@ -3,7 +3,6 @@ namespace PhpDevil\ORM\providers;
 use PhpDevil\ORM\queries\QueryExecutable;
 use PhpDevil\ORM\QueryBuilder\QueryBuilderInterface;
 use PhpDevil\ORM\relations\AbstractRelation;
-use PhpDevil\ORM\relations\RelationObserver;
 
 /**
  * Class RecordSet
@@ -29,6 +28,27 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
      * @var array
      */
     protected $observers = [];
+
+    /**
+     * Получение атрибута связанной модели
+     * @param $member
+     * @param null $column
+     * @return mixed
+     */
+    public function getAttributeFor($member, $column = null)
+    {
+        if (false === ($dot = strpos($column, '.'))) {
+            $alias = null;
+        } else {
+            $alias = substr($column, $dot+1);
+            $column = substr($column, 0, $dot);
+        }
+        if (isset($this->relations[$column])) {
+            return $this->relations[$column]->getAttributeFor($member, $alias);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Добавление связи как обозревателя значений поля
@@ -60,14 +80,14 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
      * @param $relation
      * @param $queryAlias
      */
-    private function addRelatedField($relation, $queryAlias)
+    private function addRelatedField($relation, $queryAlias = null)
     {
         if (isset($this->relationsConfigs[$relation])) {
             if (!isset($this->relations[$relation])) {
                 $this->relations[$relation] = AbstractRelation::create($this->relationsConfigs[$relation], $this->modelClass);
                 $this->addObserver($relation, $this->relationsConfigs[$relation]['here']);
             }
-            $this->relations[$relation]->addQueryAlias($queryAlias);
+            if ($queryAlias) $this->relations[$relation]->addQueryAlias($queryAlias);
         }
     }
 
@@ -79,31 +99,56 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
         return new QueryExecutable(($this->modelClass)::db(), $this->query);
     }
 
+    private $_recordSet = null;
+
+    private $_preloaded = null;
+
+    /**
+     * Если запрос был выборочным и произошло обращение к невыбранному атрибуту
+     * перегружаем тот же запрос по всем полям и переназначаем атрибуты загруженным записям
+     * @param $attribute
+     */
+    public function checkIfQueried($attribute)
+    {
+        if (!in_array($attribute, $this->_preloaded)) {
+            $this->query->select(null);
+            $prepared = $this->makeExecutableQuery()->execute();
+            $pk = ($this->modelClass)::getRoleFieldStatic('id');
+            while ($row = $prepared->fetch()) {
+                if (isset($this->_recordSet[$row[$pk]])) {
+                    $this->_recordSet[$row[$pk]]->setAttributes($row);
+                }
+            }
+            $this->_preloaded = array_keys(($this->modelClass)::attributes());
+        }
+    }
+
     /**
      * Все записи результата запроса в виде инстансов класса, переданного в качестве
      * прототипа для провайдера данных
      * @param $rowCallBack
+     * @return array
      */
     public function all(callable $rowCallBack = null)
     {
-        $prepared = $this->makeExecutableQuery()->execute();
-        $prototype = ($this->modelClass)::model();
-
-        $result = [];
-
-        while ($row = $prepared->fetch()) {
-            $record = clone($prototype);
-            foreach ($row as $k=>$v) {
-                $this->notifyObservers($k, $v);
+        if (empty($this->_recordSet)){
+            $prepared = $this->makeExecutableQuery()->execute();
+            $prototype = ($this->modelClass)::model();
+            $prototype->setOwner($this);
+            $this->_recordSet = [];
+            while ($row = $prepared->fetch()) {
+                $record = clone($prototype);
+                foreach ($row as $k=>$v) {
+                    $this->notifyObservers($k, $v);
+                }
+                $record->setAttributes($row);
+                if (null !== $rowCallBack) {
+                    call_user_func($rowCallBack, $record);
+                }
+                $this->_recordSet[$record->getRoleValue('id')] = $record;
             }
-            $record->setAttributes($row);
-            if (null !== $rowCallBack) {
-                call_user_func($rowCallBack, $record);
-            }
-            $result[$record->getRoleValue('id')] = $record;
         }
-
-        print_r($result);
+        return $this->_recordSet;
     }
 
     /**
@@ -118,9 +163,10 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
         parent::setQuery($query);
         $columns = $this->query->getFieldsNames();
         $this->relationsConfigs = ($this->modelClass)::relations();
+        foreach ($this->relationsConfigs as $k=>$v) $this->addRelatedField($k, null);
         $attributes = ($this->modelClass)::attributes();
         $realQueryColumns = [];
-        foreach ($columns['main'] as $k=>$v) {
+        if (is_array($columns['main'])) foreach ($columns['main'] as $k=>$v) {
             if (false === ($dot = strrpos($v, '.'))) {
                 if (isset($attributes[$v])) $realQueryColumns[] = $v;
             } else {
@@ -129,5 +175,6 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
             }
         }
         $this->query->select($realQueryColumns);
+        $this->_preloaded = empty($realQueryColumns) ? array_keys(($this->modelClass)::attributes()) : $realQueryColumns;
     }
 }

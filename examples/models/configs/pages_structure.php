@@ -14,7 +14,8 @@ return [
         'key_right' => ['type' => 'integer(10) unsigned', 'nullable' => false, 'role'=>'tree-right'],
         'parent_id' => ['type' => 'integer(10) unsigned', 'nullable' => false, 'role'=>'tree-parent', 'relation'=>'parent', 'template'=>'{$name}'],
         'name'      => ['type' => 'string(255)'],
-        'url'       => ['type' => 'string(255)', 'role'=>'url']
+        'url'       => ['type' => 'string(255)', 'role'=>'url'],
+        'test'      => ['type' => 'string(255)']
     ],
 
     /**

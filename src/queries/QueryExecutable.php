@@ -6,7 +6,7 @@ class QueryExecutable extends AbstractQuery
 {
     public function execute()
     {
-        $this->statement->execute();
+        $this->statement->execute($this->arguments);
         return $this;
     }
 

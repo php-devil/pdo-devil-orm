@@ -24,6 +24,7 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     public static function findAll($columns = null)
     {
         $query = new SelectQueryBuilder;
+        if (null !== $columns) $columns = (static::mainBehavior())::prepareSelectColumns(static::class, $columns);
         $query->select($columns)->from(static::tableName())->orderBy((static::mainBehavior())::defaultOrderBy(static::class));
         return $query;
     }

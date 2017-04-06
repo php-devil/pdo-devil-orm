@@ -28,9 +28,33 @@ abstract class AbstractModel
 
     protected $_provider = null;
 
-    public function setProvider()
+    public function __get($attribute)
     {
+        return $this->getAttribute($attribute);
+    }
 
+    public function getAttribute($attribute)
+    {
+        if (false !== ($dot = strpos($attribute, '.'))) {
+            return $this->_provider->getAttributeFor($this, $attribute);
+        } else {
+            if (isset($this->_attributes[$attribute])) {
+                if ($this->_provider) {
+                    $this->_provider->checkIfQueried($attribute);
+                }
+                return $this->_attributes[$attribute];
+            } else {
+                if (null !== $this->_provider) {
+                    return $this->_provider->getAttributeFor($this, $attribute);
+                }
+            }
+        }
+    }
+
+    public function setOwner($provider)
+    {
+        $this->_provider = $provider;
+        return $this;
     }
 
     public function setAttributes($arr)

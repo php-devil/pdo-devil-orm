@@ -22,6 +22,11 @@ abstract class AbstractAttribute implements AttributeInterface
         return $this->value;
     }
 
+    public function __toString()
+    {
+        return (string) $this->getValue();
+    }
+
     public function setOwner($model)
     {
         $this->owner = $model;

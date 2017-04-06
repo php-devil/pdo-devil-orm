@@ -13,7 +13,7 @@
     "psr-4": {"PhpDevil\\ORM\\": "src"}
   },
   "require": {
-    "php-devil/php-devil-configurator":  "^0.1.0",
-    "php-devil/pdo-query-builder":       "^0.1.1"
+    "php-devil/php-devil-configurator":  ">=1.0",
+    "php-devil/pdo-query-builder":       ">=1.0"
   }
 }

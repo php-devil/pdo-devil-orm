@@ -42,6 +42,18 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
     }
 
     /**
+     * Оповещение обозревателей полей о появлении нового значения в выгрузке
+     * @param $field
+     * @param $value
+     */
+    public function notifyObservers($field, $value)
+    {
+        if (isset($this->observers[$field])) foreach($this->observers[$field] as $observer) {
+            $observer->addNotification($value);
+        }
+    }
+
+    /**
      * Создание инстанса связи, регистрация его как обозревателя для передачи значений ключа по мере
      * формирования результат выгрузки основного запроса и передачи сконфигурированных полей
      * для предварительной загрузки данных при обращении к связи
@@ -81,6 +93,9 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
 
         while ($row = $prepared->fetch()) {
             $record = clone($prototype);
+            foreach ($row as $k=>$v) {
+                $this->notifyObservers($k, $v);
+            }
             $record->setAttributes($row);
             if (null !== $rowCallBack) {
                 call_user_func($rowCallBack, $record);

@@ -41,6 +41,15 @@ class AbstractRelation implements RelationObserver
         'BelongsTo' => BelongsTo::class,
     ];
 
+    protected $loadedValues = [];
+
+    public function addNotification($value)
+    {
+        if (!in_array($value, $this->loadedValues)) {
+            $this->loadedValues[] = $value;
+        }
+    }
+
     /**
      * Добавление предварительно сконфигурированного поля для запроса
      * @param $alias

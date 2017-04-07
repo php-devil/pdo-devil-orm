@@ -5,6 +5,10 @@ use PhpDevil\ORM\attributes\IntegerAttribute;
 use PhpDevil\ORM\attributes\StringAttribute;
 use PhpDevil\ORM\relations\AbstractRelation;
 
+/**
+ * Class AbstractModel
+ * @package PhpDevil\ORM\models
+ */
 abstract class AbstractModel
 {
     /**
@@ -20,9 +24,12 @@ abstract class AbstractModel
     public static function getConfig()  { return (Loader::getInstance()->load(static::getConfigSource()))['data']; }
     public static function attributes() { return (static::getConfig())['attributes'] ?: []; }
     public static function relations()  { return (static::getConfig())['relations']  ?: []; }
+    public static function rules()      { return (static::getConfig())['rules']      ?: []; }
 
     public static function typeName()  { return (static::mainBehavior())::typeName();   }
     public static function typeClass() { return (static::mainBehavior())::typeClass();  }
+
+    public static function getValidationClass() {return null;}
 
     public static function labelOf($name)
     {
@@ -130,6 +137,7 @@ abstract class AbstractModel
     protected function __construct()
     {
         $this->discoverAttributes();
+        $this->appendValidationRules();
     }
 
     final public function __clone()
@@ -159,6 +167,48 @@ abstract class AbstractModel
             $this->_attributes[$name] = new $class($name, $config);
             $this->_attributes[$name]->setOwner($this);
         }
+    }
+
+    public function appendValidationRules()
+    {
+        if (!empty($rules = static::rules())) foreach ($rules as $config) {
+            $ruleCallable = null;
+            $rule = ucfirst($config['rule']);
+            if ($class = static::getValidationClass($config['rule'])) {
+                $ruleCallable = [$class, 'validateValue'];
+            } else {
+                $ruleCallable = [$this, 'validate' . $rule];
+            }
+            if (is_callable($ruleCallable)) {
+                foreach ($config['attributes'] as $attr) if (isset($this->_attributes[$attr])){
+                    $this->_attributes[$attr]->appendValidationRule($ruleCallable, $config);
+                }
+            }
+        }
+    }
+
+    protected $_validationErrors = [];
+
+    final public function addValidationError($attributeName, $message)
+    {
+        if (!isset($this->_validationErrors[$attributeName])) $this->_validationErrors[$attributeName] = [];
+        if (!in_array($message, $this->_validationErrors[$attributeName])) {
+            $this->_validationErrors[$attributeName][] = $message;
+        }
+    }
+
+    final public function getValidationErrors()
+    {
+        return $this->_validationErrors;
+    }
+
+    final public function validate()
+    {
+        $this->_validationErrors = [];
+        foreach ($this->_attributes as $attr) {
+            $attr->validate();
+        }
+        return empty($this->_validationErrors);
     }
 
     /**
@@ -193,5 +243,13 @@ abstract class AbstractModel
             }
         }
         return strtr($template, $this->_replacements);
+    }
+
+    #====== Общие правила валидации автрибутов
+
+    public function validateRequired($attribute, $options)
+    {
+        $value = $attribute->getValue();
+        return !empty($value);
     }
 }

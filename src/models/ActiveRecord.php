@@ -77,4 +77,11 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     {
         return Connector::getInstance()->getConnection((static::getConfig())['table']['connection']);
     }
+
+    #====== Правила валидации автрибутов, завязанные на БД
+
+    public function validateUnique($attribute)
+    {
+        return true;
+    }
 }

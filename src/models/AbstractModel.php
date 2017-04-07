@@ -3,6 +3,7 @@ namespace PhpDevil\ORM\models;
 use PhpDevil\Common\Configurator\Loader;
 use PhpDevil\ORM\attributes\IntegerAttribute;
 use PhpDevil\ORM\attributes\StringAttribute;
+use PhpDevil\ORM\relations\AbstractRelation;
 
 abstract class AbstractModel
 {
@@ -20,6 +21,9 @@ abstract class AbstractModel
     public static function attributes() { return (static::getConfig())['attributes'] ?: []; }
     public static function relations()  { return (static::getConfig())['relations']  ?: []; }
 
+    public static function typeName()  { return (static::mainBehavior())::typeName();   }
+    public static function typeClass() { return (static::mainBehavior())::typeClass();  }
+
     public static function labelOf($name)
     {
         if (isset((static::getConfig())['labels'][$name])) {
@@ -36,6 +40,11 @@ abstract class AbstractModel
     protected $_keys  = [];
 
     protected $_provider = null;
+
+    public function getRelation($name)
+    {
+        return AbstractRelation::create((static::relations())[$name], get_class($this));
+    }
 
     public function __get($attribute)
     {
@@ -164,5 +173,25 @@ abstract class AbstractModel
     protected static function getAttributeClass($typeName)
     {
         return static::$attributeTypes[$typeName];
+    }
+
+    /**
+     * @var null
+     */
+    protected $_replacements = null;
+
+    /**
+     * Составной атрибут по шаблону
+     * @param $template
+     * @return string
+     */
+    public function fromTemplate($template)
+    {
+        if (null === $this->_replacements) {
+            foreach ($this->_attributes as $k=>$v) {
+                $this->_replacements['${' . $k . '}'] = $v->getValue();
+            }
+        }
+        return strtr($template, $this->_replacements);
     }
 }

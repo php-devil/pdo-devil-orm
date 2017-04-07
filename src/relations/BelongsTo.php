@@ -13,6 +13,31 @@ class BelongsTo extends AbstractRelation implements RelationObserver
 
     protected $preloaded = null;
 
+    public function getHtmlType()
+    {
+        return 'one_from_list';
+    }
+
+    public function getVariantsFor($model, $template)
+    {
+        $valid = [['key' => 0,  'value' => '/']];
+
+        $where = null;
+        if ($this->leftClassName === $this->rightClassName) {
+
+        }
+
+        $variants = (new RecordSet([
+            'prototype' => $this->rightClassName,
+            'query' => ($this->rightClassName)::findAll()
+        ]))->all();
+
+        foreach($variants as $row) {
+            $valid[] = ['key' => $row->getAttribute($this->rightFieldName)->getValue(), 'value' => $row->fromTemplate($template), 'level'=> $row->getLevel()];
+        }
+        return $valid;
+    }
+
     protected function getFromProvider($model)
     {
         if (isset($this->preloaded[$model->getAttribute($this->leftFieldName)->getValue()])) {

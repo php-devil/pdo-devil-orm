@@ -2,6 +2,7 @@
 namespace PhpDevil\ORM\models;
 use PhpDevil\ORM\Connector;
 use PhpDevil\ORM\queries\QueryBuildable;
+use PhpDevil\ORM\QueryBuilder\components\QueryCriteria;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
 use PhpDevil\ORM\behavior\NestedSets;
 
@@ -41,13 +42,37 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     }
 
     /**
+     * Поиск строки по первичному ключу
+     * @param $value
+     * @return mixed
+     */
+    public static function findByPK($value)
+    {
+        if ($row = static::query()
+                ->select()
+                    ->where(QueryCriteria::createAND([[static::getRoleFieldStatic('id'), '=', $value]]))
+                    ->execute()
+                    ->fetch()
+        ) {
+            $model = static::model();
+            $model->setAttributes($row);
+            return $model;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Параметры конфигурации модели
      * @return string|array
      */
     public static function tableName() { return (static::getConfig())['table']['name']; }
-    public static function typeName()  { return (static::mainBehavior())::typeName();   }
-    public static function typeClass() { return (static::mainBehavior())::typeClass();  }
 
+
+    /**
+     * Соединение с базой данных
+     * @return mixed
+     */
     public static function db()
     {
         return Connector::getInstance()->getConnection((static::getConfig())['table']['connection']);

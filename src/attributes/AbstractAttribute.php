@@ -7,9 +7,19 @@ abstract class AbstractAttribute implements AttributeInterface
 
     protected $owner = null;
 
-    protected $name  = null;
+    protected $name = null;
 
     protected $value = null;
+
+    public function isValid()
+    {
+        return false;
+    }
+
+    public function hasErrors()
+    {
+        return false;
+    }
 
     public function setValue($value)
     {

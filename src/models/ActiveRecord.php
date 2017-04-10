@@ -97,8 +97,9 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     {
         if ($this->isNewRecord()) {
             if ((static::mainBehavior())::beforeInsert($this)) {
-                static::query()->insert($this->getAttributes())->execute();
-                (static::mainBehavior())::beforeUpdate($this);
+                $id = static::query()->insert($this->getAttributes())->execute()->getInsertID();
+                $this->setRoleValue('id', $id);
+                (static::mainBehavior())::afterInsert($this);
             }
         } else {
             if ((static::mainBehavior())::beforeUpdate($this)) {

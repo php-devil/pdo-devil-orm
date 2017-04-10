@@ -10,6 +10,11 @@ class QueryExecutable extends AbstractQuery
         return $this;
     }
 
+    public function getInsertID()
+    {
+        return $this->connection->getHandler()->lastInsertID();
+    }
+
     protected function fromQueryBuilder($builder)
     {
         $query = $builder->parse($this->connection->getDialect());

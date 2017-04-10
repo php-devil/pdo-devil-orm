@@ -238,7 +238,7 @@ class NestedSets extends DefaultBehavior
         } elseif (0 == $row->getRoleValue('tree-parent')) {
             $values = $row::query()->select(['max_right_value' => QueryExpression::max($rightKeyField)])
                 ->execute()->fetch();
-            $maxRight = $values[$row->getRoleField('tree-right')];
+            $maxRight = $values['max_right_value'];
             $row->setRoleValue('tree-left',  intval($maxRight) + 1);
             $row->setRoleValue('tree-level', 1);
             $row->setRoleValue('tree-right', intval($maxRight) + 2);

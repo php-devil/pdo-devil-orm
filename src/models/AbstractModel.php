@@ -140,6 +140,20 @@ abstract class AbstractModel
     }
 
     /**
+     * Установка значения атрибута по имени роли
+     * @param $role
+     * @param $value
+     * @return $this
+     */
+    public function setRoleValue($role, $value)
+    {
+        if ($field = $this->getRoleField($role)) {
+            $this->setAttributeValue($field, $value);
+        }
+        return $this;
+    }
+
+    /**
      * Создание экземпляра класса модели возможно вызовом метода model()
      * AbstractModel constructor.
      */

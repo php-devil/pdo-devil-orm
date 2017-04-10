@@ -90,28 +90,33 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
 
     public function isNewRecord()
     {
-        return (bool) $this->getRoleValue('id');
+        return !((bool) $this->getRoleValue('id'));
     }
 
     public function save()
     {
         if ($this->isNewRecord()) {
-            $insertArray = (static::mainBehavior())::beforeInsert($this);
-            $this->insert($insertArray);
-            (static::mainBehavior())::beforeUpdate($this);
+            if ((static::mainBehavior())::beforeInsert($this)) {
+                static::query()->insert($this->getAttributes())->execute();
+                (static::mainBehavior())::beforeUpdate($this);
+            }
         } else {
-            $updateArray = (static::mainBehavior())::beforeUpdate($this);
-            $this->update($updateArray);
-            (static::mainBehavior())::afterUpdate($this);
+            if ((static::mainBehavior())::beforeUpdate($this)) {
+                static::query()->update(
+                    $this->getAttributes(),
+                    QueryCriteria::createAND([[$this->getRoleField('id'), '=', $this->getRoleValue('id')]])
+                )->execute();
+                (static::mainBehavior())::afterUpdate($this);
+            }
         }
     }
 
-    protected function insert($attributes)
+    protected function insert()
     {
 
     }
 
-    protected function update($attributes)
+    protected function update()
     {
 
     }

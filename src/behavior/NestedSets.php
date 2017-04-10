@@ -204,4 +204,60 @@ class NestedSets extends DefaultBehavior
         }
         $query->execute();
     }
+
+    /**
+     * Подготовка записи перед вставкой
+     * @param ActiveRecordInterface $row
+     * @return array
+     */
+    public static function beforeInsert(ActiveRecordInterface $row)
+    {
+        $leftKeyField   = $row->getRoleField('tree-left');
+        $levelKeyField  = $row->getRoleField('tree-level');
+        $rightKeyField  = $row->getRoleField('tree-right');
+        if ($parentNode = $row::findByPK($row->getRoleValue('tree-parent'))) {
+            $parentNode = $parentNode->getAttributes();
+            $row->setRoleValue('tree-left',  $parentNode[$rightKeyField]);
+            $row->setRoleValue('tree-level', $parentNode[$levelKeyField]  + 1);
+            $row->setRoleValue('tree-right', $parentNode[$rightKeyField] + 1);
+            $row::query()->update([
+                $rightKeyField => QueryExpression::math(['@'.$rightKeyField, '+', 2]),
+                $leftKeyField  => [
+                    QueryCriteria::createAND([[$leftKeyField, '>', $parentNode[$rightKeyField]]]),
+                    QueryExpression::math(['@'.$leftKeyField, '+', 2]),
+                    '@'.$leftKeyField
+                ]
+            ], QueryCriteria::createAND([[$rightKeyField, '>=', $parentNode[$rightKeyField]]]))->execute();
+            return true;
+        } elseif (0 === $row->getRoleValue('')) {
+            $values = $row::query()->select(['max_right_value' => QueryExpression::max($rightKeyField)])
+                ->execute()->fetch();
+            $maxRight = $values[$row->getRoleField('tree-right')];
+            $row->setRoleValue('tree-left',  intval($maxRight) + 1);
+            $row->setRoleValue('tree-level', 1);
+            $row->setRoleValue('tree-right', intval($maxRight) + 2);
+            return true;
+        } else {
+            // Добавление в несуществующий узел
+            return false;
+        }
+    }
+
+    /**
+     * Подготовка записи перед обновлением
+     * @param ActiveRecordInterface $row
+     * @return array
+     */
+    public static function beforeUpdate(ActiveRecordInterface $row)
+    {
+        $oldValues = $row::findByPK($row->getRoleValue('id'))->getAttributes();
+        if ($oldValues[$row->getRoleField('tree-parent')] != $row->getRoleValue('tree-parent')) {
+            static::moveNode($row, $row->getRoleValue('tree-parent'));
+            $afterMove =  $row::findByPK($row->getRoleValue('id'))->getAttributes();
+            $row->setRoleValue('tree-left',  $afterMove[$row->getRoleField('tree-left')]);
+            $row->setRoleValue('tree-level', $afterMove[$row->getRoleField('tree-level')]);
+            $row->setRoleValue('tree-right', $afterMove[$row->getRoleField('tree-right')]);
+        }
+        return true;
+    }
 }

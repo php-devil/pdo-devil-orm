@@ -9,22 +9,22 @@ abstract class DefaultBehavior
     public static function defaultOrderBy($class) { return null; }
     public static function prepareSelectColumns($class, $columns) {return $columns;}
 
-    public static function beforeInsert($row)
+    public static function beforeInsert(ActiveRecordInterface $row)
     {
         return $row->getAttributes();
     }
 
-    public static function afterInsert($row)
+    public static function afterInsert(ActiveRecordInterface $row)
     {
         return true;
     }
 
-    public static function beforeUpdate($row)
+    public static function beforeUpdate(ActiveRecordInterface $row)
     {
         return $row->getAttributes();
     }
 
-    public static function afterUpdate($row)
+    public static function afterUpdate(ActiveRecordInterface $row)
     {
         return true;
     }

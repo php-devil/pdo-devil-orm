@@ -125,8 +125,14 @@ class NestedSets extends DefaultBehavior
         if (null === $newParentID) {
             $level_up = 0;
         } else {
-            $newParentNode = ($row::findByPK($newParentID))->getAttributes();
-            $level_up = $newParentNode[$levelKeyField];
+            if ($newParentNode = ($row::findByPK($newParentID))){
+                $newParentNode = $newParentNode->getAttributes();
+                $level_up = $newParentNode[$levelKeyField];
+            } else {
+                $level_up = 0;
+                $newParentNode[$leftKeyField]  = 0;
+                $newParentNode[$rightKeyField] = 1;
+            }
         }
 
         switch ($newBefore) {
@@ -229,7 +235,7 @@ class NestedSets extends DefaultBehavior
                 ]
             ], QueryCriteria::createAND([[$rightKeyField, '>=', $parentNode[$rightKeyField]]]))->execute();
             return true;
-        } elseif (0 === $row->getRoleValue('')) {
+        } elseif (0 == $row->getRoleValue('tree-parent')) {
             $values = $row::query()->select(['max_right_value' => QueryExpression::max($rightKeyField)])
                 ->execute()->fetch();
             $maxRight = $values[$row->getRoleField('tree-right')];
@@ -250,7 +256,12 @@ class NestedSets extends DefaultBehavior
      */
     public static function beforeUpdate(ActiveRecordInterface $row)
     {
-        $oldValues = $row::findByPK($row->getRoleValue('id'))->getAttributes();
+        $oldValues = $row::findByPK($row->getRoleValue('id'));
+        if ($oldValues) {
+            $oldValues = $oldValues->getAttributes();
+        } else {
+            return false;
+        }
         if ($oldValues[$row->getRoleField('tree-parent')] != $row->getRoleValue('tree-parent')) {
             static::moveNode($row, $row->getRoleValue('tree-parent'));
             $afterMove =  $row::findByPK($row->getRoleValue('id'))->getAttributes();

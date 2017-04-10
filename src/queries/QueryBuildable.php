@@ -2,6 +2,7 @@
 namespace PhpDevil\ORM\queries;
 use PhpDevil\ORM\QueryBuilder\queries\QueryExecutorInterface;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
+use PhpDevil\ORM\QueryBuilder\queries\UpdateQueryBuilder;
 use PhpDevil\ORM\QueryBuilder\QueryBuilderInterface;
 
 class QueryBuildable implements QueryExecutorInterface
@@ -15,6 +16,11 @@ class QueryBuildable implements QueryExecutorInterface
     public function select($columns = null)
     {
         return (new SelectQueryBuilder($this))->select($columns)->from($this->tableName);
+    }
+
+    public function update($what, $where)
+    {
+        return (new UpdateQueryBuilder($this))->update($this->tableName)->set($what)->where($where);
     }
 
     public function execute(QueryBuilderInterface $builder, $arguments = null)

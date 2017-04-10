@@ -58,6 +58,15 @@ abstract class AbstractModel
         return $this->getAttribute($attribute);
     }
 
+    public function getAttributes()
+    {
+        $result = [];
+        foreach ($this->_attributes as $k=>$v) {
+            $result[$k] = $v->getValue();
+        }
+        return $result;
+    }
+
     public function getAttribute($attribute)
     {
         if (false !== ($dot = strpos($attribute, '.'))) {

@@ -41,6 +41,16 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
         return $query;
     }
 
+    public function moveLeft()
+    {
+        return (static::mainBehavior())::moveLeft($this);
+    }
+
+    public function moveRight()
+    {
+        return (static::mainBehavior())::moveRight($this);
+    }
+
     /**
      * Поиск строки по первичному ключу
      * @param $value
@@ -76,6 +86,34 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     public static function db()
     {
         return Connector::getInstance()->getConnection((static::getConfig())['table']['connection']);
+    }
+
+    public function isNewRecord()
+    {
+        return (bool) $this->getRoleValue('id');
+    }
+
+    public function save()
+    {
+        if ($this->isNewRecord()) {
+            $insertArray = (static::mainBehavior())::beforeInsert($this);
+            $this->insert($insertArray);
+            (static::mainBehavior())::beforeUpdate($this);
+        } else {
+            $updateArray = (static::mainBehavior())::beforeUpdate($this);
+            $this->update($updateArray);
+            (static::mainBehavior())::afterUpdate($this);
+        }
+    }
+
+    protected function insert($attributes)
+    {
+
+    }
+
+    protected function update($attributes)
+    {
+
     }
 
     #====== Правила валидации автрибутов, завязанные на БД

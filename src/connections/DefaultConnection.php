@@ -33,6 +33,16 @@ class DefaultConnection
      */
     protected $handler = null;
 
+    public function getDefaultEngine()
+    {
+        return 'InnoDB';
+    }
+
+    public function getDefaultCharset()
+    {
+        return 'utf8';
+    }
+
     /**
      * Открывает соединение с БД при первом вызове или после закрытия соединения
      */

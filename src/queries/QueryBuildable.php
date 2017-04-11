@@ -1,5 +1,6 @@
 <?php
 namespace PhpDevil\ORM\queries;
+use PhpDevil\ORM\QueryBuilder\queries\DeleteQueryBuilder;
 use PhpDevil\ORM\QueryBuilder\queries\QueryExecutorInterface;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
 use PhpDevil\ORM\QueryBuilder\queries\UpdateQueryBuilder;
@@ -27,6 +28,11 @@ class QueryBuildable implements QueryExecutorInterface
     public function insert($what)
     {
         return (new InsertQueryBuilder($this))->into($this->tableName)->set($what);
+    }
+
+    public function delete($where)
+    {
+        return (new DeleteQueryBuilder($this))->from($this->tableName)->where($where);
     }
 
     public function execute(QueryBuilderInterface $builder, $arguments = null)

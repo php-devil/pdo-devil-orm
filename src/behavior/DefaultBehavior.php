@@ -11,7 +11,7 @@ abstract class DefaultBehavior
 
     public static function beforeInsert(ActiveRecordInterface $row)
     {
-        return $row->getAttributes();
+        return true;
     }
 
     public static function afterInsert(ActiveRecordInterface $row)
@@ -21,10 +21,20 @@ abstract class DefaultBehavior
 
     public static function beforeUpdate(ActiveRecordInterface $row)
     {
-        return $row->getAttributes();
+        return true;
     }
 
     public static function afterUpdate(ActiveRecordInterface $row)
+    {
+        return true;
+    }
+
+    public static function beforeDelete(ActiveRecordInterface $row)
+    {
+        return true;
+    }
+
+    public static function afterDelete(ActiveRecordInterface $row)
     {
         return true;
     }
@@ -34,7 +44,7 @@ abstract class DefaultBehavior
      * @param ActiveRecordInterface $row
      * @return mixed
      */
-    public static function movLeft(ActiveRecordInterface $row)
+    public static function moveLeft(ActiveRecordInterface $row)
     {
         return null;
     }

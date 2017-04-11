@@ -271,4 +271,30 @@ class NestedSets extends DefaultBehavior
         }
         return true;
     }
+
+    public static function beforeDelete(ActiveRecordInterface $row)
+    {
+        $where = QueryCriteria::createAND([
+            [$row->getRoleField('tree-left'),  '>=', $row->getRoleValue('tree-left')],
+            [$row->getRoleField('tree-right'), '<=', $row->getRoleValue('tree-right')],
+        ]);
+        $row::query()->delete($where)->execute();
+        return true;
+    }
+
+    public static function afterDelete(ActiveRecordInterface $row)
+    {
+        $leftKeyField  = $row->getRoleField('tree-left');  $left_key  = $row->getRoleValue('tree-left');
+        $rightKeyField = $row->getRoleField('tree-right'); $right_key = $row->getRoleValue('tree-right');
+        $skew_keys = $right_key - $left_key + 1;
+        $query = $row::query()->update([
+            $leftKeyField =>  [
+                QueryCriteria::createAND([[$leftKeyField, '>', $left_key]]),
+                QueryExpression::math(['@'.$leftKeyField, '-', $skew_keys]),
+                '@' . $leftKeyField
+            ],
+            $rightKeyField => QueryExpression::math(['@' . $rightKeyField, '-', $skew_keys])
+        ], QueryCriteria::createAND([[$rightKeyField, '>', $right_key]]));
+        $query->execute();
+    }
 }

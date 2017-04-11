@@ -112,6 +112,15 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
         }
     }
 
+    public function remove()
+    {
+        if ($this->accessControl('delete') && ((static::mainBehavior())::beforeDelete($this))) {
+            static::query()->delete(QueryCriteria::createAND([[$this->getRoleField('id'), '=', $this->getRoleValue('id')]]))
+                ->execute();
+            (static::mainBehavior())::afterDelete($this);
+        }
+    }
+
     protected function insert()
     {
 

@@ -1,14 +1,16 @@
 <?php
 namespace PhpDevil\ORM\models;
 
-
 interface ActiveRecordInterface
 {
     /**
-     * Ссылка на файл конфигурации модели
+     * Установка коллекции записей для выборок данных
+     * @param ActiveRecordCollectionInterface $collection
      * @return mixed
      */
-    public static function getConfigSource();
+    public function setCollection(ActiveRecordCollectionInterface $collection);
 
-    public static function findAll();
+    public static function findAll($columns = null);
+
+
 }

@@ -1,10 +1,10 @@
 <?php
 namespace PhpDevil\ORM\models;
+use PhpDevil\ORM\behavior\DefaultBehavior;
 use PhpDevil\ORM\Connector;
 use PhpDevil\ORM\queries\QueryBuildable;
 use PhpDevil\ORM\QueryBuilder\components\QueryCriteria;
 use PhpDevil\ORM\QueryBuilder\queries\SelectQueryBuilder;
-use PhpDevil\ORM\behavior\NestedSets;
 
 abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterface
 {
@@ -15,7 +15,7 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
      */
     public static function mainBehavior()
     {
-        return NestedSets::class;
+        return DefaultBehavior::class;
     }
 
     /**
@@ -28,6 +28,11 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
         return new QueryBuildable(static::db(), static::tableName());
     }
 
+    public function getDefaultOrderBy()
+    {
+        return (static::mainBehavior())::defaultOrderBy(static::class);
+    }
+
     /**
      * Поиск всех строк связанной таблицы
      * @param null|array $columns
@@ -37,7 +42,7 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     {
         $query = new SelectQueryBuilder;
         if (null !== $columns) $columns = (static::mainBehavior())::prepareSelectColumns(static::class, $columns);
-        $query->select($columns)->from(static::tableName())->orderBy((static::mainBehavior())::defaultOrderBy(static::class));
+        $query->select($columns)->from(static::tableName())->orderBy(static::getDefaultOrderBy());
         return $query;
     }
 

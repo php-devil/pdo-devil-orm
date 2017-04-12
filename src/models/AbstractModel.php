@@ -58,6 +58,11 @@ abstract class AbstractModel
         return $this->getAttribute($attribute);
     }
 
+    public function __set($name, $value)
+    {
+        $this->setAttributeValue($name, $value);
+    }
+
     public function getAttributes()
     {
         $result = [];

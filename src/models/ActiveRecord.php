@@ -11,11 +11,20 @@ abstract class ActiveRecord extends AbstractModel implements ActiveRecordInterfa
     /**
      * Определение поведения модели в целом
      * (дерево NS, списки с сортировкой по полю, с русной сортировкой по полю, маппер и т.п.)
-     * @return mixed
+     * @return string
      */
     public static function mainBehavior()
     {
         return DefaultBehavior::class;
+    }
+
+    /**
+     * Класс, которым будет представлен набор записей после запроса search или findAll
+     * @return string
+     */
+    public static function collectionClass()
+    {
+        return ActiveRecordCollection::class;
     }
 
     /**

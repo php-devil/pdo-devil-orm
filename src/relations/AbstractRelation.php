@@ -77,6 +77,7 @@ abstract class AbstractRelation implements RelationObserver
      */
     public function addQueryAlias($alias)
     {
+        echo "\n<li> add QA = $alias";
         if (!in_array($alias, $this->queriedColumns)) {
             $this->queriedColumns[] = $alias;
         }

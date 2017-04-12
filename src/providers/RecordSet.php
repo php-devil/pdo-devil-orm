@@ -68,6 +68,7 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
      */
     public function notifyObservers($field, $value)
     {
+        if (0 === $value || !empty($value))
         if (isset($this->observers[$field])) foreach($this->observers[$field] as $observer) {
             $observer->addNotification($value);
         }

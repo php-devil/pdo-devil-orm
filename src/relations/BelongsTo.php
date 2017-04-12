@@ -50,9 +50,11 @@ class BelongsTo extends AbstractRelation implements RelationObserver
     protected function preloadShort()
     {
         if (!$this->shortPreloadDone) {
+            $where = null;
+            if (!empty($this->loadedValues)) $where = QueryCriteria::createAND([[$this->rightFieldName, 'in', $this->loadedValues]]);
             $this->preloaded = (new RecordSet([
                 'prototype' => $this->rightClassName,
-                'query' => ($this->rightClassName)::findAll($this->queriedColumns)->where(QueryCriteria::createAND([[$this->rightFieldName, 'in', $this->loadedValues]]))
+                'query' => ($this->rightClassName)::findAll($this->queriedColumns)->where($where)
             ]))->all();
             $this->shortPreloadDone = true;
         }
@@ -61,9 +63,11 @@ class BelongsTo extends AbstractRelation implements RelationObserver
     protected function preloadLong()
     {
         if (!$this->longPreloadDone) {
+            $where = null;
+            if (!empty($this->loadedValues)) $where = QueryCriteria::createAND([[$this->rightFieldName, 'in', $this->loadedValues]]);
             $this->preloaded = (new RecordSet([
                 'prototype' => $this->rightClassName,
-                'query' => ($this->rightClassName)::findAll(null)->where(QueryCriteria::createAND([[$this->rightFieldName, 'in', $this->loadedValues]]))
+                'query' => ($this->rightClassName)::findAll(null)->where($where)
             ]))->all();
             $this->shortPreloadDone = true;
             $this->longPreloadDone = true;

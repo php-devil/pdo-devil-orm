@@ -166,6 +166,7 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
      * иоделей создаем классы связей, которые будут загружены по мере попыток доступа к даннымю
      *
      * @param QueryBuilderInterface $query
+     * TODO: Проверка на наличие столбца в realQueryColumn
      */
     protected function setQuery(QueryBuilderInterface $query)
     {
@@ -180,6 +181,7 @@ class RecordSet extends AbstractDataProvider implements RelationObservable
                 if (isset($attributes[$v])) $realQueryColumns[] = $v;
             } else {
                 $relationName = substr($v, 0, $dot);
+                $realQueryColumns[] = $this->relationsConfigs[$relationName]['here'];
                 $this->addRelatedField($relationName, substr($v, $dot + 1));
             }
         }

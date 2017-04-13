@@ -1,15 +1,11 @@
 <?php
 namespace PhpDevil\ORM\relations;
 
+use PhpDevil\ORM\Connector;
+
 abstract class AbstractRelation implements RelationObserver
 {
-    /**
-     * Конкретные классы отношений по типам
-     * @var array
-     */
-    protected static $classes = [
-        'BelongsTo' => BelongsTo::class,
-    ];
+
 
     protected $leftClassName;
 
@@ -41,8 +37,9 @@ abstract class AbstractRelation implements RelationObserver
 
     public static function create($config, $leftClassName)
     {
-        if (isset(static::$classes[$config['type']])) {
-            $class = static::$classes[$config['type']];
+        $classes = Connector::getInstance()->getRelationsClasses();
+        if (isset($classes[$config['type']])) {
+            $class = $classes[$config['type']];
             return new $class($config, $leftClassName);
         }
     }

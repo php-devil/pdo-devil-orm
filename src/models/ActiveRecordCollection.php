@@ -96,6 +96,7 @@ class ActiveRecordCollection implements ActiveRecordCollectionInterface
     protected function prepareColumns()
     {
         $queriedColumns = $this->query->getFieldsNames();
+        if (!isset($queriedColumns['main'])) $queriedColumns['main'] = array_keys(($this->modelPrototype)::attributes());
         foreach ($queriedColumns['main'] as $colName) {
             if (false === ($dot = strpos($colName, '.'))) {
                 if (!in_array($colName, $this->columnsFromSelf)) $this->columnsFromSelf[] = $colName;

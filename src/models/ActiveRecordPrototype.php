@@ -38,31 +38,28 @@ abstract class ActiveRecordPrototype extends AbstractModel implements ActiveReco
         return new QueryBuildable(static::db(), static::tableName());
     }
 
+    /**
+     * Сортировка выборок по умолчанию
+     * @return mixed
+     */
     public function getDefaultOrderBy()
     {
         return (static::mainBehavior())::defaultOrderBy(static::class);
     }
 
-
-
     /**
-     * Поиск всех строк связанной таблицы
-     * @param null|array $columns
-     * @return SelectQueryBuilder
+     * Перемещение записи(узла) выше(левее) в пределах родительского
+     * @return mixed
      */
-    public static function o_findAll($columns = null)
-    {
-        $query = new SelectQueryBuilder;
-        if (null !== $columns) $columns = (static::mainBehavior())::prepareSelectColumns(static::class, $columns);
-        $query->select($columns)->from(static::tableName())->orderBy(static::getDefaultOrderBy());
-        return $query;
-    }
-
     public function moveLeft()
     {
         return (static::mainBehavior())::moveLeft($this);
     }
 
+    /**
+     * Перемещение записи(узла) ниже(правее) в пределах родительского
+     * @return mixed
+     */
     public function moveRight()
     {
         return (static::mainBehavior())::moveRight($this);
@@ -105,11 +102,19 @@ abstract class ActiveRecordPrototype extends AbstractModel implements ActiveReco
         return Connector::getInstance()->getConnection((static::getConfig())['table']['connection']);
     }
 
+    /**
+     * Определение, является ли запись новой (по факту наличия значения первичного ключа)
+     * @return bool
+     */
     public function isNewRecord()
     {
         return !((bool) $this->getRoleValue('id'));
     }
 
+    /**
+     * Сохранение записи в БД
+     * todo добавить $this->accessControl(insert|delete)
+     */
     public function save()
     {
         if ($this->isNewRecord()) {

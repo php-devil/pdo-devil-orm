@@ -2,6 +2,7 @@
 namespace PhpDevil\ORM;
 
 use PhpDevil\ORM\connections\DefaultConnection;
+use PhpDevil\ORM\relations\BelongsTo;
 
 class Connector
 {
@@ -10,6 +11,25 @@ class Connector
     private $connectionsAvailable = [];
 
     private $connectionsEnabled = [];
+
+    /**
+     * Конкретные классы отношений по типам
+     * @var array
+     */
+    protected $relationsClasses = [
+        'BelongsTo' => BelongsTo::class,
+    ];
+
+    public function getRelationsClasses()
+    {
+        return $this->relationsClasses;
+    }
+
+    public function setRelationClasses($arr)
+    {
+        $this->relationsClasses = $arr;
+        return $this;
+    }
 
     /**
      * Добавление конфигурации известных соединений

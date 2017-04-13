@@ -53,6 +53,26 @@ class ActiveRecordCollection implements ActiveRecordCollectionInterface
     }
 
     /**
+     * Получение отношения
+     * @param ActiveRecordInterface $row
+     * @param $alias
+     * @return mixed
+     */
+    public function getByAlias(ActiveRecordInterface $row, $alias)
+    {
+        if (false === ($dot = strpos($alias, '.'))) {
+            // todo: trigger error
+        } else {
+            $relation = substr($alias, 0, $dot);
+            if (isset($this->_relations[$relation])) {
+                return $this->_relations[$relation]->getValueFor($row, substr($alias, $dot + 1));
+            } else {
+                echo 'Unknown Rel';
+            }
+        }
+    }
+
+    /**
      * Добавление поля связанной модели
      * @param $relation
      * @param $name
@@ -116,6 +136,11 @@ class ActiveRecordCollection implements ActiveRecordCollectionInterface
             $this->rows[$record->getRoleValue(id)] = $record;
         }
         return $this;
+    }
+
+    public function rows()
+    {
+        return $this->rows;
     }
 
     /**

@@ -1,7 +1,12 @@
 <?php
 namespace PhpDevil\ORM\models;
+use PhpDevil\ORM\QueryBuilder\components\QueryCriteriaInterface;
 
-
+/**
+ * Class ActiveRecord
+ * Модель (строка таблицы в БД)
+ * @package PhpDevil\ORM\models
+ */
 abstract class ActiveRecord extends ActiveRecordPrototype
 {
     /**
@@ -9,6 +14,27 @@ abstract class ActiveRecord extends ActiveRecordPrototype
      * @var null
      */
     protected $collection = null;
+
+    /**
+     * Получение атрибута по алиасу с учетом коллекции и связей
+     * @param $attribute
+     * @return string
+     */
+    public function getAttribute($attribute)
+    {
+        if (false === ($dot = strpos($attribute, '.'))) {
+            if (isset($this->_attributes[$attribute])) {
+                return $this->_attributes[$attribute];
+            } else {
+                return  'MaybeProperty or Relation ))';
+            }
+
+        } else {
+            if (null !== $this->collection) {
+                return $this->collection->getByAlias($this, $attribute);
+            }
+        }
+    }
 
     /**
      * Установка коллекции записей для выборок данных
@@ -21,6 +47,10 @@ abstract class ActiveRecord extends ActiveRecordPrototype
         return $this;
     }
 
+    /**
+     * Установка значений атрибутов с учетом принадлежности к коллекии
+     * @param $arr
+     */
     public function setAttributes($arr)
     {
         foreach ($arr as $k=>$v) {
@@ -32,9 +62,10 @@ abstract class ActiveRecord extends ActiveRecordPrototype
     /**
      * Инициалиазися коллекции записей и начального SQL запроса
      * @param null $columns
+     * @param QueryCriteriaInterface $where
      * @return ActiveRecordCollectionInterface
      */
-    public static function findAll($columns = null)
+    public static function findAll($columns = null, QueryCriteriaInterface $where = null)
     {
         $collectionClass = static::collectionClass();
         if (null !== $columns) {
@@ -42,7 +73,7 @@ abstract class ActiveRecord extends ActiveRecordPrototype
         }
         $collection = new $collectionClass(
             static::class,
-            static::query()->select($columns)->orderBy(static::getDefaultOrderBy())
+            static::query()->select($columns)->where($where)->orderBy(static::getDefaultOrderBy())
         );
         return $collection;
     }

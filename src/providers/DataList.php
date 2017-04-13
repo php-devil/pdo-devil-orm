@@ -20,6 +20,11 @@ class DataList extends AbstractDataProvider
         return $this->collection->getPrototype();
     }
 
+    public function all()
+    {
+        return $this->collection->all()->rows();
+    }
+
     public function __construct(ActiveRecordCollectionInterface $collection)
     {
         $this->collection = $collection;

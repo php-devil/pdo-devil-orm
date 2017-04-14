@@ -24,7 +24,7 @@ abstract class AbstractAttribute implements AttributeInterface
      * Флаг выполнения валидации. Сбрасывается в false при установке нового значения атрибута
      * @var bool
      */
-    protected $_validationDone  = false;
+    protected $_validationDone = false;
 
     /**
      * Список ошибок валидации значения атрибута
@@ -69,7 +69,7 @@ abstract class AbstractAttribute implements AttributeInterface
         return ($this->_validationDone && !empty($this->_validationErrors));
     }
 
-    public function validate()
+    public function validate($throwTo = null)
     {
         if (!empty($this->_validationStack)) foreach ($this->_validationStack as $rule) {
             $error = null;
@@ -83,11 +83,20 @@ abstract class AbstractAttribute implements AttributeInterface
             }
 
             if ($error) {
-                if (!in_array($error, $this->_validationErrors)) $this->_validationErrors[] = $error;
+                // $this->addValidationError($error);
+                // Сообщение об ошибке добавит владелец
                 $this->owner->addValidationError($this->name, $error);
+                if (null !== $throwTo) {
+                    $throwTo->addValidationError($this->name, $error);
+                }
             }
         }
         $this->_validationDone = true;
+    }
+
+    public function addValidationError($error)
+    {
+        if (!in_array($error, $this->_validationErrors)) $this->_validationErrors[] = $error;
     }
 
     public function beforeSet($value)

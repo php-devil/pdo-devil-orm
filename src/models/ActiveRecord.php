@@ -17,6 +17,27 @@ abstract class ActiveRecord extends ActiveRecordPrototype
     protected $collection = null;
 
     /**
+     * Отношения для работы без коллекции записей
+     * @var array
+     */
+    protected $relations = [];
+
+    /**
+     * Добавление отношения в качестве атрибута
+     * @param $name
+     * @return mixed
+     */
+    public function getRelationAsAttribute($name)
+    {
+        if (!isset($this->relations[$name])) {
+            if ($rel = $this->getRelation($name)) {
+                $this->relations[$name] = $rel->preloadSingle($this);
+            }
+        }
+        return $this->relations[$name];
+    }
+
+    /**
      * Получение атрибута по алиасу с учетом коллекции и связей
      * @param $attribute
      * @return string
@@ -27,9 +48,12 @@ abstract class ActiveRecord extends ActiveRecordPrototype
             if (isset($this->_attributes[$attribute])) {
                 return $this->_attributes[$attribute];
             } else {
-                return  'MaybeProperty or Relation ))';
+                if (null === $this->collection) {
+                    return $this->getRelationAsAttribute($attribute);
+                } else {
+                    // догрузка незапрошенного поля в коллекции
+                }
             }
-
         } else {
             if (null !== $this->collection) {
                 return $this->collection->getByAlias($this, $attribute);

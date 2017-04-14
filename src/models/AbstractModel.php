@@ -219,6 +219,7 @@ abstract class AbstractModel
 
     final public function addValidationError($attributeName, $message)
     {
+        $this->_attributes[$attributeName]->addValidationError($message);
         if (!isset($this->_validationErrors[$attributeName])) $this->_validationErrors[$attributeName] = [];
         if (!in_array($message, $this->_validationErrors[$attributeName])) {
             $this->_validationErrors[$attributeName][] = $message;
@@ -230,11 +231,11 @@ abstract class AbstractModel
         return $this->_validationErrors;
     }
 
-    final public function validate()
+    public function validate($throwTo = null)
     {
         $this->_validationErrors = [];
         foreach ($this->_attributes as $attr) {
-            $attr->validate();
+            $attr->validate($throwTo);
         }
         return empty($this->_validationErrors);
     }

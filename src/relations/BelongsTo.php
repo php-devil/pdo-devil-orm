@@ -28,6 +28,13 @@ class BelongsTo extends AbstractRelation implements RelationObserver
         }
     }
 
+    public function preloadSingle($row)
+    {
+        $lf = $this->leftField;
+        $lv = $row->$lf->getValue();
+        return ($this->rightClassName)::findOne(QueryCriteria::createAND([[$this->rightField, '=', $lv]]));
+    }
+
     public function getValueFor(ActiveRecordInterface $left, $alias)
     {
 

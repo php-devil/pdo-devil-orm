@@ -280,4 +280,17 @@ abstract class AbstractModel
         $value = $attribute->getValue();
         return !empty($value);
     }
+
+    public function validateEqual($attribute, $options)
+    {
+        $value = $attribute->getValue();
+        $check = $options['compare'];
+        return ($value == $this->$check->getValue());
+    }
+
+    public function validateEmail($attribute, $options)
+    {
+        $value = $attribute->getValue();
+        return (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
 }

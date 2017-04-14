@@ -84,6 +84,7 @@ class ActiveRecordCollection implements ActiveRecordCollectionInterface
             if (!isset($this->_relations[$relation])) {
                 $this->_relations[$relation] = AbstractRelation::create($relations[$relation], get_class($this->modelPrototype));
                 $column = $relations[$relation]['here'];
+                if (!in_array($column, $this->columnsFromSelf)) $this->columnsFromSelf[] = $column;
                 $this->_observers[$column][$relation] = &$this->_relations[$relation];
             }
             $this->_relations[$relation]->addQueryAlias($name);

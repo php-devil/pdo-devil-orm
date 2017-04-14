@@ -7,7 +7,18 @@ abstract class DefaultBehavior
     public static function typeName()  {return 'default';}
     public static function typeClass() {return 'table';}
     public static function defaultOrderBy($class) { return [$class::getRoleFieldStatic('id')=>true]; }
-    public static function prepareSelectColumns($class, $columns) {return $columns;}
+
+    /**
+     * Добавление ключей дерева к полям селект запроса
+     * @param $class
+     * @return array
+     */
+    public static function getSelectFields($class)
+    {
+        return [
+            $class::getRoleFieldStatic('id'),
+        ];
+    }
 
     public static function beforeInsert(ActiveRecordInterface $row)
     {

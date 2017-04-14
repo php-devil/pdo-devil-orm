@@ -42,22 +42,17 @@ class NestedSets extends DefaultBehavior
     /**
      * Добавление ключей дерева к полям селект запроса
      * @param $class
-     * @param $columns
-     * @return mixed
+     * @return array
      */
-    public static function prepareSelectColumns($class, $columns)
+    public static function getSelectFields($class)
     {
-        $queried = [
+        return [
             $class::getRoleFieldStatic('id'),
             $class::getRoleFieldStatic('tree-left'),
             $class::getRoleFieldStatic('tree-level'),
             $class::getRoleFieldStatic('tree-right'),
             $class::getRoleFieldStatic('tree-parent')
         ];
-        foreach ($columns as $col) {
-            if (!in_array($col, $queried)) $queried[] = $col;
-        }
-        return $queried;
     }
 
     /**

@@ -66,27 +66,6 @@ abstract class ActiveRecordPrototype extends AbstractModel implements ActiveReco
     }
 
     /**
-     * Поиск строки по первичному ключу
-     * @param $value
-     * @return mixed
-     */
-    public static function findByPK($value)
-    {
-        if ($row = static::query()
-            ->select()
-            ->where(QueryCriteria::createAND([[static::getRoleFieldStatic('id'), '=', $value]]))
-            ->execute()
-            ->fetch()
-        ) {
-            $model = static::model();
-            $model->setAttributes($row);
-            return $model;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Параметры конфигурации модели
      * @return string|array
      */

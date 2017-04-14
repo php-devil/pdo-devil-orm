@@ -1,5 +1,6 @@
 <?php
 namespace PhpDevil\ORM\models;
+use PhpDevil\ORM\QueryBuilder\components\QueryCriteria;
 use PhpDevil\ORM\QueryBuilder\components\QueryCriteriaInterface;
 
 /**
@@ -60,6 +61,56 @@ abstract class ActiveRecord extends ActiveRecordPrototype
     }
 
     /**
+     * Поиск по значению первичного ключа
+     * @param $value
+     * @return null|ActiveRecord
+     */
+    public static function findByPK($value)
+    {
+        return static::findOne(QueryCriteria::createAND([[static::getRoleFieldStatic('id'), '=', $value]]));
+    }
+
+    /**
+     * Поиск первой записи, удовлетворяющей критерию
+     * @param $arrayOrCriteria
+     * @return null|static
+     */
+    public static function findOne($arrayOrCriteria)
+    {
+        if (is_array($arrayOrCriteria)) $arrayOrCriteria = QueryCriteria::createAND($arrayOrCriteria);
+        if ($row = static::query()->select()->where($arrayOrCriteria)->limit(1)->execute()->fetch()) {
+            $model = static::model();
+            $model->setAttributes($row);
+            return $model;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Обязательные ключи для select запросов
+     * @return mixed
+     */
+    public static function getSelectFields()
+    {
+        return (static::mainBehavior())::getSelectFields(static::class);
+    }
+
+    /**
+     * Подготовка полей select запросов (добавление обязательных)
+     * @param $columns
+     * @return array|mixed
+     */
+    final public static function prepareSelectColumns($columns)
+    {
+        $queried = static::getSelectFields();
+        foreach ($columns as $col) {
+            if (!in_array($col, $queried)) $queried[] = $col;
+        }
+        return $queried;
+    }
+
+    /**
      * Инициалиазися коллекции записей и начального SQL запроса
      * @param null $columns
      * @param QueryCriteriaInterface $where
@@ -69,7 +120,7 @@ abstract class ActiveRecord extends ActiveRecordPrototype
     {
         $collectionClass = static::collectionClass();
         if (null !== $columns) {
-            $columns = (static::mainBehavior())::prepareSelectColumns(static::class, $columns);
+            $columns = static::prepareSelectColumns($columns);
         }
         $collection = new $collectionClass(
             static::class,

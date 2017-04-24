@@ -152,4 +152,33 @@ abstract class ActiveRecord extends ActiveRecordPrototype
         );
         return $collection;
     }
+
+    public function save()
+    {
+        $this->beforeSave();
+        if ($this->isNewRecord()) {
+            if ((static::mainBehavior())::beforeInsert($this)) {
+                $id = static::query()->insert($this->getAttributes())->execute()->getInsertID();
+                $this->setRoleValue('id', $id);
+                (static::mainBehavior())::afterInsert($this);
+            }
+        } else {
+            if ((static::mainBehavior())::beforeUpdate($this)) {
+                static::query()->update(
+                    $this->getAttributes(),
+                    QueryCriteria::createAND([[$this->getRoleField('id'), '=', $this->getRoleValue('id')]])
+                )->execute();
+                (static::mainBehavior())::afterUpdate($this);
+            }
+        }
+        $this->afterSave();
+    }
+
+    public function beforeSave()
+    {
+    }
+
+    public function afterSave()
+    {
+    }
 }

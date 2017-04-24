@@ -37,7 +37,6 @@ class BelongsTo extends AbstractRelation implements RelationObserver
 
     public function getValueFor(ActiveRecordInterface $left, $alias)
     {
-
         $this->createRight();
         $lf = $this->leftField;
         $lv =  $left->$lf->getValue();

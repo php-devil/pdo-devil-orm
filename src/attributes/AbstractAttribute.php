@@ -32,6 +32,11 @@ abstract class AbstractAttribute implements AttributeInterface
      */
     protected $_validationErrors = [];
 
+    final public function getAttributeName()
+    {
+        return $this->name;
+    }
+
     /**
      * Добавление правила валидации значения атрибута
      * @param callable $rule

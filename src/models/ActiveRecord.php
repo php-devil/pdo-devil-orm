@@ -153,6 +153,16 @@ abstract class ActiveRecord extends ActiveRecordPrototype
         return $collection;
     }
 
+    /**
+     * Действия перед сохраниением данных (insert|update)
+     */
+    public function beforeSave()
+    {
+    }
+
+    /**
+     * Сохранение данных
+     */
     public function save()
     {
         $this->beforeSave();
@@ -174,11 +184,26 @@ abstract class ActiveRecord extends ActiveRecordPrototype
         $this->afterSave();
     }
 
-    public function beforeSave()
+    /**
+     * Действия после сохраниением данных (insert|update)
+     */
+    public function afterSave()
     {
     }
 
-    public function afterSave()
+    public function beforeRemove() {}
+    public function afterRemove()  {}
+    public function removeMedia()  {}
+
+    public function remove()
     {
+        $this->beforeRemove();
+        if ($this->accessControl('delete') && ((static::mainBehavior())::beforeDelete($this))) {
+            $this->removeMedia();
+            static::query()->delete(QueryCriteria::createAND([[$this->getRoleField('id'), '=', $this->getRoleValue('id')]]))
+                ->execute();
+            (static::mainBehavior())::afterDelete($this);
+        }
+        $this->afterRemove();
     }
 }

@@ -90,17 +90,7 @@ abstract class ActiveRecordPrototype extends AbstractModel implements ActiveReco
         return !((bool) $this->getRoleValue('id'));
     }
 
-    public function remove()
-    {
-        $this->beforeRemove();
-        if ($this->accessControl('delete') && ((static::mainBehavior())::beforeDelete($this))) {
-            $this->removeMedia();
-            static::query()->delete(QueryCriteria::createAND([[$this->getRoleField('id'), '=', $this->getRoleValue('id')]]))
-                ->execute();
-            (static::mainBehavior())::afterDelete($this);
-        }
-        $this->afterRemove();
-    }
+
 
     #====== Правила валидации автрибутов, завязанные на БД
 

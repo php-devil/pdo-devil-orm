@@ -10,4 +10,12 @@ interface ActiveRecordCollectionInterface
      * @return mixed
      */
     public function notifyValueSet($name, $value);
+
+    /**
+     * Получение отношения
+     * @param ActiveRecordInterface $row
+     * @param $alias
+     * @return mixed
+     */
+    public function getByAlias(ActiveRecordInterface $row, $alias);
 }

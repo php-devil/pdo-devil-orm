@@ -12,7 +12,7 @@ abstract class ActiveRecord extends ActiveRecordPrototype
 {
     /**
      * Коллекция, которой принадлежит запись
-     * @var null
+     * @var ActiveRecordCollectionInterface|null
      */
     protected $collection = null;
 
@@ -99,10 +99,10 @@ abstract class ActiveRecord extends ActiveRecordPrototype
      * @param $arrayOrCriteria
      * @return null|static
      */
-    public static function findOne($arrayOrCriteria)
+    public static function findOne($arrayOrCriteria, $order = null)
     {
         if (is_array($arrayOrCriteria)) $arrayOrCriteria = QueryCriteria::createAND($arrayOrCriteria);
-        if ($row = static::query()->select()->where($arrayOrCriteria)->limit(1)->execute()->fetch()) {
+        if ($row = static::query()->select()->where($arrayOrCriteria)->orderBy($order)->limit(1)->execute()->fetch()) {
             $model = static::model();
             $model->setAttributes($row);
             return $model;
